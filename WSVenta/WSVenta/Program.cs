@@ -1,3 +1,5 @@
+using WSVenta.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 string MiCors = "MiCors";
 
@@ -17,6 +19,7 @@ builder.Services.AddCors(options =>
                                 builder.WithMethods("*");
                             });
 });
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
