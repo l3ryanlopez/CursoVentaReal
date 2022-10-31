@@ -19,6 +19,7 @@ namespace WSVenta.Models
         public virtual DbSet<Cliente> Clientes { get; set; } = null!;
         public virtual DbSet<Concepto> Conceptos { get; set; } = null!;
         public virtual DbSet<Producto> Productos { get; set; } = null!;
+        public virtual DbSet<Usuario> Usuarios { get; set; } = null!;
         public virtual DbSet<Ventum> Venta { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -26,7 +27,7 @@ namespace WSVenta.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=BRYANLOPEZLP\\SQLEXPRESS; Database=VentaReal; Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=BRYANLOPEZLP\\SQLEXPRESS; DataBase=VentaReal; Trusted_Connection=True;");
             }
         }
 
@@ -95,6 +96,28 @@ namespace WSVenta.Models
                 entity.Property(e => e.PrecioUnitario)
                     .HasColumnType("decimal(16, 2)")
                     .HasColumnName("precioUnitario");
+            });
+
+            modelBuilder.Entity<Usuario>(entity =>
+            {
+                entity.ToTable("usuario");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Email)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("email");
+
+                entity.Property(e => e.Nombre)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("nombre");
+
+                entity.Property(e => e.Password)
+                    .HasMaxLength(300)
+                    .IsUnicode(false)
+                    .HasColumnName("password");
             });
 
             modelBuilder.Entity<Ventum>(entity =>
