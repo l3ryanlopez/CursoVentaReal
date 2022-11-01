@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using WSVenta.Models.Common;
 using WSVenta.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +23,32 @@ builder.Services.AddCors(options =>
                                 builder.WithMethods("*");
                             });
 });
+
+var appSettingsSection = builder.Configuration.GetSection("AppSettings");
+builder.Services.Configure<AppSettings>(appSettingsSection);
+
+// JWT
+var appSettings = appSettingsSection.Get<AppSettings>();
+var llave = Encoding.ASCII.GetBytes(appSettings.Secreto);
+builder.Services.AddAuthentication(d =>
+{
+    d.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    d.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(d =>
+{
+    d.RequireHttpsMetadata = false;
+    d.SaveToken = true;
+    d.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(llave),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
+
+
+
 builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
@@ -33,6 +63,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors(MiCors);
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
