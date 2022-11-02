@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using WSVenta.Models;
 using WSVenta.Models.Request;
 using WSVenta.Models.Response;
+using WSVenta.Services;
 
 namespace WSVenta.Controllers
 {
@@ -12,6 +13,13 @@ namespace WSVenta.Controllers
     [Authorize]
     public class VentaController : ControllerBase
     {
+        private IVentaService _venta;
+
+        public VentaController(IVentaService venta)
+        {
+            this._venta = venta;
+        }
+
         [HttpPost]
         public IActionResult Add(VentaRequest model)
         {
@@ -19,43 +27,10 @@ namespace WSVenta.Controllers
 
             try
             {
-                using (VentaRealContext db = new VentaRealContext())
-                {
-                    using (var transaction = db.Database.BeginTransaction())
-                    {
-                        try
-                        {
-                            var venta = new Ventum();
-                            venta.Total = model.Conceptos.Sum(d => d.Cantidad * d.PrecioUnitario);
-                            venta.Fecha = DateTime.Now;
-                            venta.IdCliente = model.IdCliente;
-                            db.Venta.Add(venta);
-                            db.SaveChanges();
+                _venta.Add(model);
+                respuesta.Exito = 1;
+                respuesta.Mensaje = "Venta realizada con exito";
 
-                            foreach (var modelConcepto in model.Conceptos)
-                            {
-                                var concepto = new Models.Concepto();
-                                concepto.Cantidad = modelConcepto.Cantidad;
-                                concepto.IdProducto = modelConcepto.IdProducto;
-                                concepto.PrecioUnitario = modelConcepto.PrecioUnitario;
-                                concepto.Importe = modelConcepto.Importe;
-                                concepto.IdVenta = venta.Id;
-                                db.Conceptos.Add(concepto);
-                                db.SaveChanges();
-                            }
-
-                            transaction.Commit();
-                            respuesta.Exito = 1;
-                            respuesta.Mensaje = "Venta realizada con éxito";
-
-                        }
-                        catch (Exception)
-                        {
-                            transaction.Rollback();
-                            throw;
-                        }
-                    }
-                }
 
             }
             catch (Exception ex)

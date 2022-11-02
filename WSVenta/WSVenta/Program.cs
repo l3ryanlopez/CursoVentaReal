@@ -50,6 +50,7 @@ builder.Services.AddAuthentication(d =>
 
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IVentaService, VentaService>();
 
 var app = builder.Build();
 
