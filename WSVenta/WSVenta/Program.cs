@@ -3,13 +3,19 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WSVenta.Models.Common;
 using WSVenta.Services;
+using WSVenta.Tools;
 
 var builder = WebApplication.CreateBuilder(args);
 string MiCors = "MiCors";
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+    options.JsonSerializerOptions.Converters.Add(new IntToStringConverter());
+    options.JsonSerializerOptions.Converters.Add(new DecimalToStringConverter());
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
